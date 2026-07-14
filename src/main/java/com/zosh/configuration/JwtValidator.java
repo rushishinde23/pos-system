@@ -33,7 +33,7 @@ public class JwtValidator extends OncePerRequestFilter {
         if (jwt != null){
             jwt = jwt.substring(7);
             try {
-                SecretKey key = Keys.hmacShaKeyFor(jwtConstants.JWT_HEADER.getBytes());
+                SecretKey key = Keys.hmacShaKeyFor(jwtConstants.JWT_SECRET.getBytes(StandardCharsets.UTF_8));
                 Claims claims = Jwts.parser()
                         .verifyWith(key)
                         .build()
@@ -47,7 +47,8 @@ public class JwtValidator extends OncePerRequestFilter {
                 Authentication auth = new UsernamePasswordAuthenticationToken(email,null,auths);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception e) {
-                throw new BadCredentialsException("Invalid JWT...");
+                e.printStackTrace();   // This will show the real cause
+                throw new BadCredentialsException("Invalid JWT...", e);
             }
         }
 
