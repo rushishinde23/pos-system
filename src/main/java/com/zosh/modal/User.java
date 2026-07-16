@@ -23,14 +23,6 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-//@Table(name = "user")
-//public class User {
-//
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "user_id")
-//    private Long id;
-
     @Column(nullable = false)
     private String fullName;
 
@@ -39,6 +31,9 @@ public class User {
     private String email;
 
     private  String phone;
+
+    @ManyToOne
+    private Store store;
 
     @Column(nullable = false)
     private String password;
