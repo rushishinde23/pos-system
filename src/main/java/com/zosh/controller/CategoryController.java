@@ -18,12 +18,11 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<CategoryDTO> createCategory(@RequestBody CategoryDTO categoryDTO) throws Exception {
-        return ResponseEntity.ok(
-                categoryService.createCategory(categoryDTO)
+        return ResponseEntity.ok(categoryService.createCategory(categoryDTO)
         );
     }
 
-    @GetMapping("/store/{stodeID}")
+    @GetMapping("/store/{storeID}")
     public ResponseEntity<List<CategoryDTO>> getCategoriesByStoreID(@PathVariable Long stodeID) throws Exception {
         return ResponseEntity.ok(
                 categoryService.getCategoriesByStore(stodeID)
