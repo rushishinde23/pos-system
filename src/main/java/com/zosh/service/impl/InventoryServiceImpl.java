@@ -77,7 +77,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+//This is service implementation
 @Service
 @RequiredArgsConstructor
 public class InventoryServiceImpl implements InventoryService {

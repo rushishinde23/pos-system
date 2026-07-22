@@ -1,5 +1,5 @@
 package com.zosh.mapper;
-
+//This is Mapper
 import com.zosh.modal.Branch;
 import com.zosh.modal.Inventory;
 import com.zosh.modal.Product;

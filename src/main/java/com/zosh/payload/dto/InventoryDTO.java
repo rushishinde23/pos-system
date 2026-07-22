@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-
+//This is DTO
 @Data
 @Builder
 @NoArgsConstructor
