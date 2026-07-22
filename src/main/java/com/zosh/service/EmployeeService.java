@@ -12,6 +12,6 @@ public interface EmployeeService {
     UserDto createBranchEmployee(UserDto employee, Long branchID) throws Exception;
     User updateEmployee(Long employeeID, UserDto employeeDetails) throws Exception;
     void deteteEmployee(Long employeeID) throws Exception;
-    List<User> findStoreEmployees(Long storeID, UserRole role) throws Exception;
-    List<User> findBranchEmployees(Long branchID, UserRole role) throws Exception;
+    List<UserDto> findStoreEmployees(Long storeID, UserRole role) throws Exception;
+    List<UserDto> findBranchEmployees(Long branchID, UserRole role) throws Exception;
 }
