@@ -16,8 +16,15 @@ public class UserMapper {
         userDto.setLastLogin(savedUser.getLastLogin());
         userDto.setUpdatedAt(savedUser.getUpdatedAt());
         userDto.setPhone(savedUser.getPhone());
-        userDto.setStoreID(savedUser.getStore()!=null? savedUser.getStore().getId():null);
-        userDto.setBranchID(savedUser.getBranch()!=null? savedUser.getBranch().getId():null);
+//        userDto.setStoreID(savedUser.getStore()!=null? savedUser.getStore().getId():null);
+//        userDto.setBranchID(savedUser.getBranch()!=null? savedUser.getBranch().getId():null);
+        if (savedUser.getStore() != null) {
+            userDto.setStoreID(savedUser.getStore().getId());
+        }
+
+        if (savedUser.getBranch() != null) {
+            userDto.setBranchID(savedUser.getBranch().getId());
+        }
 
         return userDto;
     }

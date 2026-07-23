@@ -38,6 +38,8 @@ public class User {
     @ManyToOne
     private Branch branch;
 
+    //private Long branchID;
+
     @Column(nullable = false)
     private String password;
 

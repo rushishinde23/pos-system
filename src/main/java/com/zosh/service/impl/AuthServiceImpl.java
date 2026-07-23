@@ -4,9 +4,13 @@ import com.zosh.configuration.JwtProvider;
 import com.zosh.domain.UserRole;
 import com.zosh.exceptions.UserException;
 import com.zosh.mapper.UserMapper;
+import com.zosh.modal.Branch;
+import com.zosh.modal.Store;
 import com.zosh.modal.User;
 import com.zosh.payload.dto.UserDto;
 import com.zosh.payload.responce.AuthResponse;
+import com.zosh.repository.BranchRepository;
+import com.zosh.repository.StoreRepository;
 import com.zosh.repository.UserRepository;
 import com.zosh.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +33,8 @@ public class AuthServiceImpl implements AuthService {
 
 
     private final UserRepository userRepository;
-
+    private final BranchRepository branchRepository;
+    private final StoreRepository storeRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final CustomUserImplementation customUserImplementation;
@@ -51,10 +56,25 @@ public class AuthServiceImpl implements AuthService {
         newUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
         newUser.setRole(userDto.getRole());
         newUser.setFullName(userDto.getFullName());
+        //newUser.setBranchID(userDto.getBranchID());
         newUser.setPhone(userDto.getPhone());
         newUser.setLastLogin(LocalDateTime.now());
         newUser.setCreatedAt(LocalDateTime.now());
         newUser.setUpdatedAt(LocalDateTime.now());
+
+        // Fetch and link Branch entity
+        if (userDto.getBranchID() != null) {
+            Branch branch = branchRepository.findById(userDto.getBranchID())
+                    .orElseThrow(() -> new UserException("Branch not found with ID: " + userDto.getBranchID()));
+            newUser.setBranch(branch);
+        }
+
+        // Fetch and link Store entity (if storeID is provided during signup)
+        if (userDto.getStoreID() != null) {
+            Store store = storeRepository.findById(userDto.getStoreID())
+                    .orElseThrow(() -> new UserException("Store not found with ID: " + userDto.getStoreID()));
+            newUser.setStore(store);
+        }
 
        User savedUser =  userRepository.save(newUser);
 
