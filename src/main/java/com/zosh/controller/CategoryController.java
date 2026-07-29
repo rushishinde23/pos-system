@@ -23,9 +23,9 @@ public class CategoryController {
     }
 
     @GetMapping("/store/{storeID}")
-    public ResponseEntity<List<CategoryDTO>> getCategoriesByStoreID(@PathVariable Long stodeID) throws Exception {
+    public ResponseEntity<List<CategoryDTO>> getCategoriesByStoreID(@PathVariable Long storeID) throws Exception {
         return ResponseEntity.ok(
-                categoryService.getCategoriesByStore(stodeID)
+                categoryService.getCategoriesByStore(storeID)
         );
     }
 
@@ -37,8 +37,8 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteCategory(@RequestBody CategoryDTO categoryDTO, @PathVariable Long id) throws Exception {
-        categoryService.updateCategory(id, categoryDTO);
+    public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Long id) throws Exception {
+        categoryService.deleteCategory(id);
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setMessage("Category deleted successfully");
         return ResponseEntity.ok(

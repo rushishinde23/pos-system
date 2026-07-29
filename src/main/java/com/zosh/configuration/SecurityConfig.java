@@ -28,9 +28,9 @@ public class SecurityConfig {
                         management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers("/api/super-admin/**").hasRole("ADMIN")
-                                .requestMatchers("/api/**").authenticated()
-                                .anyRequest().permitAll()
+                                .requestMatchers("/api/super-admin/**").hasRole("ADMIN") //must have ROLE_ADMIN
+                                .requestMatchers("/api/**").authenticated() //must be authenticated for all the requests targeting
+                                .anyRequest().permitAll() //any other endpoints are permitted
                 )
                 .addFilterBefore(new JwtValidator(),
                         BasicAuthenticationFilter.class)
