@@ -1,0 +1,17 @@
+package com.zosh.payload.responce;
+
+import com.zosh.payload.dto.UserDto;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class AuthResponse {
+
+    private String jwt;
+    private String message;
+
+    private UserDto user;
+}

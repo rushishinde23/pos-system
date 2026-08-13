@@ -1,0 +1,141 @@
+package com.zosh.service.impl;
+
+import com.zosh.configuration.JwtProvider;
+import com.zosh.domain.UserRole;
+import com.zosh.exceptions.UserException;
+import com.zosh.mapper.UserMapper;
+import com.zosh.modal.Branch;
+import com.zosh.modal.Store;
+import com.zosh.modal.User;
+import com.zosh.payload.dto.UserDto;
+import com.zosh.payload.responce.AuthResponse;
+import com.zosh.repository.BranchRepository;
+import com.zosh.repository.StoreRepository;
+import com.zosh.repository.UserRepository;
+import com.zosh.service.AuthService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+
+@Service
+@RequiredArgsConstructor
+public class AuthServiceImpl implements AuthService {
+
+
+    private final UserRepository userRepository;
+    private final BranchRepository branchRepository;
+    private final StoreRepository storeRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
+    private final CustomUserImplementation customUserImplementation;
+
+
+
+    @Override
+    public AuthResponse signup(UserDto userDto) throws UserException {
+        User user = userRepository.findByEmail(userDto.getEmail());
+        if(user != null){
+            throw new UserException("email id already register ! ");
+        }
+        if (userDto.getRole().equals(UserRole.ROLE_ADMIN)){
+            throw new UserException("role admin is not allowed ! ");
+        }
+
+        User newUser = new User();
+        newUser.setEmail(userDto.getEmail());
+        newUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        newUser.setRole(userDto.getRole());
+        newUser.setFullName(userDto.getFullName());
+        //newUser.setBranchID(userDto.getBranchID());
+        newUser.setPhone(userDto.getPhone());
+        newUser.setLastLogin(LocalDateTime.now());
+        newUser.setCreatedAt(LocalDateTime.now());
+        newUser.setUpdatedAt(LocalDateTime.now());
+
+        // Fetch and link Branch entity
+        if (userDto.getBranchID() != null) {
+            Branch branch = branchRepository.findById(userDto.getBranchID())
+                    .orElseThrow(() -> new UserException("Branch not found with ID: " + userDto.getBranchID()));
+            newUser.setBranch(branch);
+        }
+
+        // Fetch and link Store entity (if storeID is provided during signup)
+        if (userDto.getStoreID() != null) {
+            Store store = storeRepository.findById(userDto.getStoreID())
+                    .orElseThrow(() -> new UserException("Store not found with ID: " + userDto.getStoreID()));
+            newUser.setStore(store);
+        }
+
+       User savedUser =  userRepository.save(newUser);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken
+                        (userDto.getEmail(),userDto.getPassword());
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = jwtProvider.generateToken(authentication);
+
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setJwt(jwt);
+        authResponse.setMessage("Registered Successfully");
+
+        authResponse.setUser(UserMapper.toDTO(savedUser));
+
+
+        return authResponse;
+    }
+
+    @Override
+    public AuthResponse login(UserDto userDto) throws UserException {
+
+        String email = userDto.getEmail();
+        String password = userDto.getPassword();
+        Authentication authentication = authenticate(email,password);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+
+        String role = authorities.iterator().next().getAuthority();
+
+        String jwt  = jwtProvider.generateToken(authentication);
+
+        User user = userRepository.findByEmail(email);
+
+        user.setLastLogin(LocalDateTime.now());
+
+        userRepository.save(user);
+
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setJwt(jwt);
+        authResponse.setMessage("Login Successfully");
+
+        authResponse.setUser(UserMapper.toDTO(user));
+
+        return authResponse;
+    }
+
+    private Authentication authenticate(String email, String password) throws UserException {
+        UserDetails userDetails =
+                customUserImplementation.loadUserByUsername(email);
+
+        if (userDetails == null){
+            throw new UserException("email id does not access"+email);
+        }
+        if(!passwordEncoder.matches(password, userDetails.getPassword())){
+            throw new UserException("Password does not match ");
+        }
+        return new UsernamePasswordAuthenticationToken(userDetails, null,userDetails.getAuthorities());
+    }
+}
